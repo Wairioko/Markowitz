@@ -2,7 +2,6 @@ import numpy as np
 import datetime
 import scipy.optimize as optimization
 import pandas as pd
-# pd.core.common.is_list_like = pd.api.types.is_list_like
 import pandas_datareader as web
 import matplotlib
 matplotlib.use('TkAgg')
@@ -13,8 +12,7 @@ stocks = ['AAPL', 'TSLA', 'DB', 'JPM', 'WMT', 'GE', 'AMZN']
 start_date = '01/01/2020'
 end_date = '18/01/2021'
 
-# downloading data from yahoo finance
-
+# downloading historical data from yahoo finance to predict future returns and risk
 
 def data_download(stocks):
     data = web.DataReader(stocks, data_source='yahoo', start=start_date, end=end_date)['Adj Close']
@@ -26,7 +24,7 @@ def data_plot(data):
     data.plot(figsize=(15, 5))
     plt.show()
 
-# returns calculation from data and ploting
+# return calculation from data and ploting
 
 
 def calculate_returns(data):
@@ -40,17 +38,18 @@ def plot_returns(returns):
 
 # print out mean nd co-variance
 
-
 def covmean(returns):
     print(returns.mean()*252)
     print(returns.cov()*252)
 
+# randomly assigning weights to stocks in our portfolio
 
 def stock_weights():
     weights = np.random.random(len(stocks))
     weights /= np.sum(weights)
     return weights
 
+# calculating expected returns and risk from our portfolio
 
 def port_returns(returns, weights):
     portfolio_return = np.sum(returns.mean()*weights)*252
@@ -62,17 +61,17 @@ def port_variance(returns, weights):
     print("Expected portfolio variance from listed stocks is : ", portfolio_variance)
 
 
-# Monte carlo simulation to generate portfolios
+# Monte carlo simulation to generate portfolios for listed stocks with random assigned weights
 
 def new_portfolios(weights, returns):
     preturns = []
     pvariance = []
-
+# simulation to run 5000 times
     for i in range(5000):
         weights = np.random.random(len(stocks))
         weights /= np.sum(weights)
-        preturns.append(np.sum(returns.mean(), *weights)*252)
-        pvariance.append(np.sqrt(np.dot(weights.T, np.dot(returns.cov()*252, weights))))
+        preturns.append(np.sum(returns.mean()*weights)*252)
+        pvariance.append(np.sqrt(np.dot(weights.T, np.dot(returns.cov()*252,weights))))
 
     preturns = np.array(preturns)
     pvariance = np.array(pvariance)
@@ -112,7 +111,7 @@ def optimal_portfolio(weights, returns):
 
 
 def print_optimal_port(optimal, returns):
-    print("Optimal weights", optimal['x'].round(3))
+    print("Optimal weights: ", optimal['x'].round(3))
     print("Expected returns, volatility & sharpe ratio: ", statistics(optimal['x'].round(3), returns))
 
 
@@ -131,17 +130,13 @@ if __name__ == '__main__':
     data = data_download(stocks)
     data_plot(data)
     returns = calculate_returns(data)
-    calculate_returns(returns)
     weights = stock_weights()
+    plot_returns(returns)
     port_returns(returns, weights)
     port_variance(returns, weights)
-    vals = new_portfolios(weights, returns)
-    plot_portfolios(returns, variances=1)
-    preturns = vals[0]
-    pvariances = vals[1]
-    statistics(weights, returns)
+    plot_portfolios(preturns, pvariances)
+    statistics(returns)
     optimal = optimal_portfolio(weights, returns)
-    new_portfolios(weights, returns)
-    optimal_portfolio(returns=0, weights=1)
+    preturns,pvariances=new_portfolios(weights, returns)
     optimal_port_plot(preturns, pvariances, optimal, returns)
     print_optimal_port(optimal, returns, preturns, pvariances)
