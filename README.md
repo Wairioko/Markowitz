@@ -1,5 +1,6 @@
 # Markowitz
-A program that creates portfolios that maximizes expected return given a specific risk level.
+A program that creates portfolios that maximize expected return given a specific risk level nd plots this data on graphs using matplotlib. The portfolio is built from chosen companies in the S&P 500 with historical data being extracted from yahoo finance.
+Program is based on the Modern Portfolio Theory by Harry markowitz.
 This theory was based on two main concepts:
 
 1. Every investor’s goal is to maximize return for any level of risk
